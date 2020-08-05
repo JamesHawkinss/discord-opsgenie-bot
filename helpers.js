@@ -1,8 +1,7 @@
 const discord = require('discord.js');
 const opsgenie = require('opsgenie-sdk');
+const fetch = require('node-fetch');
 const config = require('./config');
-const { response } = require('express');
-const e = require('express');
 
 opsgenie.configure({
     "api_key": config.opsgenie.api_key
@@ -17,84 +16,82 @@ async function sendOpsgenieEmbed(data, channel) {
     if (data.action !== "Create") return;
 
     const embed = createEmbed();
-    embed.setTitle("New OpsGenie Alert");
+    embed.setTitle(`#${data.alert.tinyId}: ${data.alert.message}`);
 
-    if (data.alert.message) embed.addField("Message", data.alert.message);
+    if (data.alert.description !== "") embed.addField("Description", data.alert.description);
     if (data.alert.source) embed.addField("Source", data.alert.source);
-    if (data.alert.teams.length > 0) {
-        let teams = "";
-        data.alert.teams.forEach((team) => {
-            teams += `${team}\n`;
-        });
-        embed.addField("Assigned Teams", teams);
+    if (data.alert.priority) embed.addField("Priority", data.alert.priority);
+    if (data.alert.responders) {
+        let responders = "";
+        data.alert.responders.forEach((responder) =>  responders += `${responder.name} (${responder.type})\n`);
+        embed.addField("Assigned Responders", responders);
     }
-    if (data.alert.recipients) {
-        console.log(data.alert.recipients);
-        // let recipients = "";
-        // data.alert.recipients.forEach((recipient) => {
-        //     recipients += `${recipient}\n`;
-        // });
-        // embed.addField("Assigned Recipients", recipients);
-    }
-    if (data.alert.alertId && data.alert.tinyId) embed.setFooter(`${data.alert.alertId}`);
+    if (data.alert.alertId) embed.setFooter(data.alert.alertId);
 
     const message = await channel.send(embed);
     return message;
 }
 
 async function closeOpsgenieAlert(id, username) {
-    var out;
-
     const identifier = {
         identifier: id,
         identifierType: 'id'
     };
 
-    const closeData = {
+    const data = {
         "note": `Closed by Discord user "${username}"`,
         "source": "discord-opsgenie-bot"
     };
 
     try {
-        opsgenie.alertV2.close(identifier, closeData, (error, result) => {
+        opsgenie.alertV2.close(identifier, data, (error, result) => {
             if (error) throw error;
-            out = result;
+            console.log(result);
         });
-    
-        return out;
     } catch (e) {
         throw e;
     }
 }
 
 async function ackOpsgenieAlert(id, username) {
-    var out;
-
     const identifier = {
         identifier: id,
         identifierType: 'id'
     };
 
-    const ackData = {
-        "note": `Closed by Discord user "${username}"`,
+    const data = {
+        "note": `Ack'd by Discord user "${username}"`,
         "source": "discord-opsgenie-bot"
     };
 
     try {
-        opsgenie.alertV2.acknowledge(identifier, ackData, (error, result) => {
+        opsgenie.alertV2.acknowledge(identifier, data, (error, result) => {
             if (error) throw error;
-            out = result;
+            console.log(result);
         });
-
-        return out;
     } catch (e) {
         throw e;
     }
 }
 
+async function changePriorityOpsgenieAlert(id, priority) {
+    fetch(`https://api.opsgenie.com/v2/alerts/${id}/priority`, {
+        "method": "PUT",
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": `GenieKey ${config.opsgenie.api_key}`
+        },
+        "body": JSON.stringify({
+            "priority": `${priority}`
+        })
+    });
+}
+
 async function getRelatedMessages(channel, id) {
     let messages = await channel.messages.fetch();
-    messages = messages.filter((msg) => msg.embeds[0].footer.text == id);
+    messages = messages.filter((msg) => {
+        if (msg.embeds[0].footer) msg.embeds[0].footer.text == id
+    });
     return messages;
 }
 
@@ -102,5 +99,7 @@ module.exports = {
     createEmbed,
     sendOpsgenieEmbed,
     closeOpsgenieAlert,
+    ackOpsgenieAlert,
+    changePriorityOpsgenieAlert,
     getRelatedMessages
 }
