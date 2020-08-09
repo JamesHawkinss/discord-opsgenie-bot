@@ -46,7 +46,6 @@ async function closeOpsgenieAlert(id, username) {
     try {
         opsgenie.alertV2.close(identifier, data, (error, result) => {
             if (error) throw error;
-            console.log(result);
         });
     } catch (e) {
         throw e;
@@ -67,14 +66,13 @@ async function ackOpsgenieAlert(id, username) {
     try {
         opsgenie.alertV2.acknowledge(identifier, data, (error, result) => {
             if (error) throw error;
-            console.log(result);
         });
     } catch (e) {
         throw e;
     }
 }
 
-async function changePriorityOpsgenieAlert(id, priority) {
+async function changePriorityOpsgenieAlert(id, priority, username) {
     fetch(`https://api.opsgenie.com/v2/alerts/${id}/priority`, {
         "method": "PUT",
         "headers": {
@@ -82,17 +80,15 @@ async function changePriorityOpsgenieAlert(id, priority) {
             "Authorization": `GenieKey ${config.opsgenie.api_key}`
         },
         "body": JSON.stringify({
-            "priority": `${priority}`
+            "priority": `${priority}`,
+            "note": `Priority changed to ${priority} by Discord user "${username}"`
         })
     });
 }
 
 async function getRelatedMessages(channel, id) {
-    let messages = await channel.messages.fetch();
-    messages = messages.filter((msg) => {
-        if (msg.embeds[0].footer) msg.embeds[0].footer.text == id
-    });
-    return messages;
+    var messages = await channel.messages.fetch();
+    return messages.filter((msg) => msg.embeds[0].footer.text === id)
 }
 
 module.exports = {

@@ -14,3 +14,4 @@ A Discord bot that allows for Slack-like interaction with Opsgenie alerts from w
 2. Copy `config.js` from `config.example.js`, and fill out values
 3. Run `node .` to start the bot
 4. (optional) Use a process manager such as PM2 to keep the bot up.
+5. Add the required emojis from the /emojis folder to your Discord server, ensuring that the emojis are named exactly as the files (the code relies on this)
