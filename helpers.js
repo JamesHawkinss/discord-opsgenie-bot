@@ -87,8 +87,9 @@ async function changePriorityOpsgenieAlert(id, priority, username) {
 }
 
 async function getRelatedMessages(channel, id) {
-    var messages = await channel.messages.fetch();
-    return messages.filter((msg) => msg.embeds[0].footer.text === id)
+    var messages = await channel.messages.fetch()
+    messages1 = messages.filter((msg) => msg.author.username == channel.client.user.username);
+    return messages1.filter((msg) => msg.embeds[0].footer.text === id)
 }
 
 module.exports = {
