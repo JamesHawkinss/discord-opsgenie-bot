@@ -1,11 +1,11 @@
 module.exports = {
     "discord": {
-        "token": "",
-        "server": "",
-        "channel": ""
+        "token": "bot token",
+        "server": "id of server to operate in",
+        "channel": "id of channel to operate in"
     },
     "opsgenie": {
-        "api_key": ""
+        "api_key": "opsgenie api key, to act on alerts"
     },
     "emojis": {
         "acknowledge": "emoji ids here",
