@@ -4,9 +4,9 @@ A Discord bot that allows for Slack-like interaction with Opsgenie alerts from w
 
 ## Features
 
- - React to acknowledge, close, and update priority of alerts
+ - React to message to acknowledge, close, and update priority of alerts
  - Embeds for displaying alerts
- - Embeds update when alert updated in Opsgenie
+ - Priority updates when alert updated in Opsgenie
 
 ## Setup
 

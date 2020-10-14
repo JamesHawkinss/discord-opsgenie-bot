@@ -16,7 +16,6 @@ app.post('/opsgenie', async (req, res) => {
     const data = req.body;
     const channel = await client.channels.fetch(config.discord.channel);
 
-    console.log(data.action);
     switch (data.action) {
         case "Create":
             const createMessages = await helpers.sendOpsgenieEmbed(data, channel);
@@ -89,7 +88,7 @@ app.post('/opsgenie', async (req, res) => {
 
 client.on('messageReactionAdd', messageReactionAdd);
 
-app.listen(2444, () => console.log("express live"));
+app.listen(config.port, () => console.log("express live"));
 client.on('ready', () => console.log("discord live"));
 
 client.login(config.discord.token);

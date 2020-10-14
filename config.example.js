@@ -7,6 +7,7 @@ module.exports = {
     "opsgenie": {
         "api_key": "opsgenie api key, to act on alerts"
     },
+    "port": 3333,
     "emojis": {
         "acknowledge": "emoji ids here",
         "close": "",
